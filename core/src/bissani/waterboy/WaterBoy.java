@@ -2,17 +2,25 @@ package bissani.waterboy;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class WaterBoy extends ApplicationAdapter {
 
 	private int actualWidth;
 	private int actualHeight;
-	Random rand = new Random();
+
+	private BitmapFont font;
+
+	private Random rand = new Random();
+
+	private Timer T;
 
 	private SpriteBatch batch;
 
@@ -32,6 +40,8 @@ public class WaterBoy extends ApplicationAdapter {
     private int barrelVerticalPosition;
 	private int barrel2HorizontalPosition;
 	private int barrel2VerticalPosition;
+	private int score = 0;
+    private String scoreText = "Score: ";
 
 	private Texture[] background;
 	private double backgroundVariation = 0;
@@ -42,10 +52,15 @@ public class WaterBoy extends ApplicationAdapter {
 	private float deltaTime;
 	private int gameState;
 	private boolean screenTouched;
+	private boolean scored;
 
 	@Override
 	public void create () {
         batch = new SpriteBatch();
+
+        font = new BitmapFont();
+        font.setColor(Color.GOLD);
+        font.getData().setScale(5);
 
         boy = new Texture[6];
         boy[0] = new Texture("legs1.png");
@@ -90,6 +105,13 @@ public class WaterBoy extends ApplicationAdapter {
 
 	    if(gameState == 0) {
             if(screenTouched) {
+				T = new Timer();
+				T.scheduleAtFixedRate(new TimerTask() {
+					@Override
+					public void run() {
+						score++;
+					}
+				}, 1000, 1000);
                 gameState = 1;
             }
         }
@@ -114,11 +136,13 @@ public class WaterBoy extends ApplicationAdapter {
             if(mineHorizontalPosition < -mine.getWidth()) {
 				mineHorizontalPosition = actualWidth;
 				mineVerticalPosition = rand.nextInt(800);
+				scored = false;
 			}
 
 			if(mine2HorizontalPosition < -mine2.getWidth()) {
 				mine2HorizontalPosition = actualWidth;
 				mine2VerticalPosition = rand.nextInt(800);
+				scored = false;
 			}
 
             if(barrelHorizontalPosition < -barrel.getWidth()) {
@@ -139,6 +163,7 @@ public class WaterBoy extends ApplicationAdapter {
         batch.draw(barrel, barrelHorizontalPosition, barrelVerticalPosition);
 		batch.draw(barrel2, barrel2HorizontalPosition, barrel2VerticalPosition);
 		batch.draw(boy[(int)variation], 300, verticalInitialPosition);
+        font.draw(batch, scoreText + String.valueOf(score), actualWidth - 1750, actualHeight - 25);
         batch.end();
 	}
 }
