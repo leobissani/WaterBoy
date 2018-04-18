@@ -6,6 +6,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 
 import java.util.Random;
 import java.util.Timer;
@@ -13,25 +17,32 @@ import java.util.TimerTask;
 
 public class WaterBoy extends ApplicationAdapter {
 
-	private int actualWidth;
-	private int actualHeight;
+	private double variation = 0;
+	private double backgroundVariation = 0;
+	private double gravitySpeed = 0;
 
 	private BitmapFont font;
-
 	private Random rand = new Random();
-
 	private Timer T;
-
 	private SpriteBatch batch;
 
+	private Rectangle waterBoy;
+	private Circle mine1Shape;
+	private Circle mine2Shape;
+	private Rectangle barrel1Shape;
+	private Rectangle barrel2Shape;
+	private ShapeRenderer shape;
+
 	private Texture[] boy;
-	private double variation = 0;
+	private Texture[] background;
 
 	private Texture mine;
     private Texture mine2;
     private Texture barrel;
 	private Texture barrel2;
 
+	private int actualWidth;
+	private int actualHeight;
 	private int mineHorizontalPosition;
 	private int mineVerticalPosition;
 	private int mine2HorizontalPosition;
@@ -41,22 +52,26 @@ public class WaterBoy extends ApplicationAdapter {
 	private int barrel2HorizontalPosition;
 	private int barrel2VerticalPosition;
 	private int score = 0;
+	private int gameState;
+
     private String scoreText = "Score: ";
 
-	private Texture[] background;
-	private double backgroundVariation = 0;
-
-	private double gravitySpeed = 0;
 	private float verticalInitialPosition;
-
 	private float deltaTime;
-	private int gameState;
+
 	private boolean screenTouched;
 	private boolean scored;
 
 	@Override
 	public void create () {
         batch = new SpriteBatch();
+
+        waterBoy = new Rectangle();
+        mine1Shape = new Circle();
+		mine2Shape = new Circle();
+		barrel1Shape = new Rectangle();
+		barrel2Shape = new Rectangle();
+		shape = new ShapeRenderer();
 
         font = new BitmapFont();
         font.setColor(Color.GOLD);
@@ -165,5 +180,19 @@ public class WaterBoy extends ApplicationAdapter {
 		batch.draw(boy[(int)variation], 300, verticalInitialPosition);
         font.draw(batch, scoreText + String.valueOf(score), actualWidth - 1750, actualHeight - 25);
         batch.end();
+
+        waterBoy.set(330, verticalInitialPosition + 60, boy[0].getWidth() - 50, boy[0].getHeight() - 80);
+		mine1Shape.set(mineHorizontalPosition + 75, mineVerticalPosition + 75, mine.getHeight()/3);
+		mine2Shape.set(mine2HorizontalPosition + 75, mine2VerticalPosition + 75, mine2.getHeight()/3);
+		barrel1Shape.set(barrelHorizontalPosition, barrelVerticalPosition, barrel.getWidth(), barrel.getHeight());
+		barrel2Shape.set(barrel2HorizontalPosition, barrel2VerticalPosition, barrel.getWidth(), barrel2.getHeight());
+
+        shape.begin(ShapeRenderer.ShapeType.Filled);
+        shape.circle(mine1Shape.x, mine1Shape.y, mine1Shape.radius);
+		shape.circle(mine2Shape.x, mine2Shape.y, mine2Shape.radius);
+        shape.rect(waterBoy.x, waterBoy.y, waterBoy.width, waterBoy.height);
+		shape.rect(barrel1Shape.x, barrel1Shape.y, barrel1Shape.width, barrel1Shape.height);
+		shape.rect(barrel2Shape.x, barrel2Shape.y, barrel2Shape.width, barrel2Shape.height);
+        shape.end();
 	}
 }
