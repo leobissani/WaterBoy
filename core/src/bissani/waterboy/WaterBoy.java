@@ -2,6 +2,7 @@ package bissani.waterboy;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -17,6 +18,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WaterBoy extends ApplicationAdapter {
+
+    private Preferences prefs;
 
 	private double variation = 0;
 	private double backgroundVariation = 0;
@@ -55,9 +58,11 @@ public class WaterBoy extends ApplicationAdapter {
 	private int barrel2HorizontalPosition;
 	private int barrel2VerticalPosition;
 	private int score = 0;
+	private int highestScore = 0;
 	private int gameState;
 
     private String scoreText = "Score: ";
+    private String highestScoreText = "Highest Score: ";
 
 	private float verticalInitialPosition;
 	private float deltaTime;
@@ -67,6 +72,7 @@ public class WaterBoy extends ApplicationAdapter {
 
 	@Override
 	public void create () {
+
         batch = new SpriteBatch();
 
         waterBoy = new Rectangle();
@@ -118,6 +124,9 @@ public class WaterBoy extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+
+        Preferences prefs = Gdx.app.getPreferences("My Preferences");
+		highestScore = prefs.getInteger("score");
 
 	    screenTouched = Gdx.input.justTouched();
         deltaTime = Gdx.graphics.getDeltaTime();
@@ -181,9 +190,13 @@ public class WaterBoy extends ApplicationAdapter {
 				}
 			}
 			else {
-
 				T.cancel();
-				// PRECISA SALVAR OS PONTOS AINDA
+				if(score > highestScore) {
+					highestScore = score;
+					prefs.putInteger("score", highestScore);
+				}
+				prefs.flush();
+
 				if(screenTouched) {
 					gameState = 0;
 					variation = 0;
@@ -203,9 +216,9 @@ public class WaterBoy extends ApplicationAdapter {
         }
 
 	    batch.begin();
-	    if(gameState == 0) {
+	    /*if(gameState == 0) {
 	    	batch.draw(gameOver, actualWidth / 2 - gameOver.getHeight(), actualHeight / 2);
-		}
+		}*/
 		batch.draw(background[(int)backgroundVariation], 0, 0, actualWidth, actualHeight);
         batch.draw(mine, mineHorizontalPosition, mineVerticalPosition);
 		batch.draw(mine2, mine2HorizontalPosition, mine2VerticalPosition);
@@ -213,6 +226,7 @@ public class WaterBoy extends ApplicationAdapter {
 		batch.draw(barrel2, barrel2HorizontalPosition, barrel2VerticalPosition);
 		batch.draw(boy[(int)variation], 300, verticalInitialPosition);
         font.draw(batch, scoreText + String.valueOf(score), actualWidth - 1750, actualHeight - 25);
+        font.draw(batch, highestScoreText + String.valueOf(highestScore),actualWidth - 1300, actualHeight - 25);
         if(gameState == 2) {
 			batch.draw(gameOver, actualWidth / 2 - gameOver.getHeight(), actualHeight / 2);
 			batch.draw(restartGame, actualWidth / 2 - gameOver.getHeight() - 140, actualHeight / 4);
