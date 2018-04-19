@@ -102,13 +102,13 @@ public class WaterBoy extends ApplicationAdapter {
 		verticalInitialPosition = actualHeight / 2;
 
 		mineHorizontalPosition = actualWidth + rand.nextInt(200);
-		mineVerticalPosition = actualHeight / rand.nextInt(2);
+		mineVerticalPosition = actualHeight / 2;
 		mine2HorizontalPosition = actualWidth + rand.nextInt(300);
-		mine2VerticalPosition = actualHeight / rand.nextInt(4);
+		mine2VerticalPosition = actualHeight / 4;
         barrelHorizontalPosition = actualWidth + rand.nextInt(500);
-        barrelVerticalPosition = actualHeight / rand.nextInt(3);
+        barrelVerticalPosition = actualHeight / 3;
 		barrel2HorizontalPosition = actualWidth + rand.nextInt(600);
-		barrel2VerticalPosition = actualHeight / rand.nextInt(5);
+		barrel2VerticalPosition = actualHeight / 5;
 
 		mine = new Texture("mine.png");
 		mine2 = new Texture("mine.png");
