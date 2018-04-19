@@ -30,6 +30,7 @@ public class WaterBoy extends ApplicationAdapter {
 	private Timer T;
 	private SpriteBatch batch;
 
+	private Rectangle bottomOfSea;
 	private Rectangle waterBoy;
 	private Circle mine1Shape;
 	private Circle mine2Shape;
@@ -44,8 +45,11 @@ public class WaterBoy extends ApplicationAdapter {
     private Texture mine2;
     private Texture barrel;
 	private Texture barrel2;
+	private Texture menuStart;
+	private Texture startGame;
 	private Texture gameOver;
 	private Texture restartGame;
+	private Texture bottomOfSeaMessage;
 
 	private int actualWidth;
 	private int actualHeight;
@@ -59,6 +63,7 @@ public class WaterBoy extends ApplicationAdapter {
 	private int barrel2VerticalPosition;
 	private int score = 0;
 	private int highestScore = 0;
+	private int bottom = 0;
 	private int gameState;
 
     private String scoreText = "Score: ";
@@ -75,6 +80,7 @@ public class WaterBoy extends ApplicationAdapter {
 
         batch = new SpriteBatch();
 
+        bottomOfSea = new Rectangle();
         waterBoy = new Rectangle();
         mine1Shape = new Circle();
 		mine2Shape = new Circle();
@@ -100,12 +106,15 @@ public class WaterBoy extends ApplicationAdapter {
 		background[2] = new Texture("background2.png");
 		background[3] = new Texture("background4.png");
 
+		startGame = new Texture("waterboy.png");
+		menuStart = new Texture("startgame.png");
 		gameOver = new Texture("gameover.png");
 		restartGame = new Texture("restartgame.png");
+		bottomOfSeaMessage = new Texture("bottomofsea.png");
 
 		actualWidth = Gdx.graphics.getWidth();
 		actualHeight  = Gdx.graphics.getHeight();
-		verticalInitialPosition = actualHeight / 2;
+		verticalInitialPosition = (actualHeight / 2) - 250;
 
 		mineHorizontalPosition = actualWidth + rand.nextInt(200);
 		mineVerticalPosition = actualHeight / 2;
@@ -134,6 +143,9 @@ public class WaterBoy extends ApplicationAdapter {
 		variation = variation + deltaTime * 5;
 		if(variation > 5) variation = 0;
 
+		backgroundVariation = backgroundVariation + deltaTime * 5;
+		if(backgroundVariation > 4) backgroundVariation = 0;
+
 	    if(gameState == 0) {
             if(screenTouched) {
 				T = new Timer();
@@ -159,9 +171,6 @@ public class WaterBoy extends ApplicationAdapter {
 				mine2HorizontalPosition -= deltaTime * 500;
 				barrelHorizontalPosition -= deltaTime * 300;
 				barrel2HorizontalPosition -= deltaTime * 200;
-				backgroundVariation = backgroundVariation + deltaTime * 5;
-
-				if(backgroundVariation > 4) backgroundVariation = 0;
 
 				if(screenTouched) {
 					gravitySpeed = -4;
@@ -198,6 +207,7 @@ public class WaterBoy extends ApplicationAdapter {
 				prefs.flush();
 
 				if(screenTouched) {
+					bottom = 0;
 					gameState = 0;
 					variation = 0;
 					gravitySpeed = 0;
@@ -216,33 +226,54 @@ public class WaterBoy extends ApplicationAdapter {
         }
 
 	    batch.begin();
-	    /*if(gameState == 0) {
-	    	batch.draw(gameOver, actualWidth / 2 - gameOver.getHeight(), actualHeight / 2);
-		}*/
+
 		batch.draw(background[(int)backgroundVariation], 0, 0, actualWidth, actualHeight);
         batch.draw(mine, mineHorizontalPosition, mineVerticalPosition);
 		batch.draw(mine2, mine2HorizontalPosition, mine2VerticalPosition);
         batch.draw(barrel, barrelHorizontalPosition, barrelVerticalPosition);
 		batch.draw(barrel2, barrel2HorizontalPosition, barrel2VerticalPosition);
-		batch.draw(boy[(int)variation], 300, verticalInitialPosition);
+		batch.draw(boy[(int)variation], 150, verticalInitialPosition);
         font.draw(batch, scoreText + String.valueOf(score), actualWidth - 1750, actualHeight - 25);
         font.draw(batch, highestScoreText + String.valueOf(highestScore),actualWidth - 1300, actualHeight - 25);
+
+        if(gameState == 0) {
+			batch.draw(startGame, actualWidth / 2 - gameOver.getHeight() - 180, actualHeight / 2);
+			batch.draw(menuStart, actualWidth / 2 - gameOver.getHeight(), actualHeight / 4);
+		}
+
         if(gameState == 2) {
 			batch.draw(gameOver, actualWidth / 2 - gameOver.getHeight(), actualHeight / 2);
 			batch.draw(restartGame, actualWidth / 2 - gameOver.getHeight() - 140, actualHeight / 4);
 		}
+
+		if(gameState == 3) {
+			batch.draw(gameOver, actualWidth / 2 - gameOver.getHeight(), actualHeight / 2);
+			batch.draw(restartGame, actualWidth / 2 - gameOver.getHeight() - 140, actualHeight / 4);
+			batch.draw(bottomOfSeaMessage, 570, 20);
+		}
+
         batch.end();
 
-        waterBoy.set(330, verticalInitialPosition + 60, boy[0].getWidth() - 50, boy[0].getHeight() - 80);
+        waterBoy.set(150, verticalInitialPosition + 60, boy[0].getWidth() - 50, boy[0].getHeight() - 80);
 		mine1Shape.set(mineHorizontalPosition + 75, mineVerticalPosition + 75, mine.getHeight()/3);
 		mine2Shape.set(mine2HorizontalPosition + 75, mine2VerticalPosition + 75, mine2.getHeight()/3);
 		barrel1Shape.set(barrelHorizontalPosition, barrelVerticalPosition, barrel.getWidth(), barrel.getHeight());
 		barrel2Shape.set(barrel2HorizontalPosition, barrel2VerticalPosition, barrel.getWidth(), barrel2.getHeight());
+		bottomOfSea.set(0, 40, actualWidth, 20);
 
 		if( Intersector.overlaps(waterBoy, barrel1Shape) || Intersector.overlaps(waterBoy, barrel2Shape) || Intersector.overlaps(mine1Shape, waterBoy) ||  Intersector.overlaps(mine2Shape, waterBoy)) {
 			gameState = 2;
 		}
 
+		if(Intersector.overlaps(waterBoy, bottomOfSea)) {
+			bottom++;
+			if(bottom >= 300)
+				gameState = 3;
+		}
+
+		if(!(Intersector.overlaps(waterBoy, bottomOfSea))) {
+			bottom = 0;
+		}
 		/*
         shape.begin(ShapeRenderer.ShapeType.Filled);
         shape.circle(mine1Shape.x, mine1Shape.y, mine1Shape.radius);
@@ -250,6 +281,7 @@ public class WaterBoy extends ApplicationAdapter {
         shape.rect(waterBoy.x, waterBoy.y, waterBoy.width, waterBoy.height);
 		shape.rect(barrel1Shape.x, barrel1Shape.y, barrel1Shape.width, barrel1Shape.height);
 		shape.rect(barrel2Shape.x, barrel2Shape.y, barrel2Shape.width, barrel2Shape.height);
+		shape.rect(bottomOfSea.x, bottomOfSea.y, bottomOfSea.width, bottomOfSea.height);
         shape.end();
         */
 	}
