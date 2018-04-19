@@ -50,6 +50,7 @@ public class WaterBoy extends ApplicationAdapter {
 	private Texture gameOver;
 	private Texture restartGame;
 	private Texture bottomOfSeaMessage;
+	private Texture newHighScore;
 
 	private int actualWidth;
 	private int actualHeight;
@@ -67,13 +68,13 @@ public class WaterBoy extends ApplicationAdapter {
 	private int gameState;
 
     private String scoreText = "Score: ";
-    private String highestScoreText = "Highest Score: ";
+    private String highestScoreText = "High Score: ";
 
 	private float verticalInitialPosition;
 	private float deltaTime;
 
 	private boolean screenTouched;
-	private boolean scored;
+	private boolean newHighScoreFlag;
 
 	@Override
 	public void create () {
@@ -111,6 +112,7 @@ public class WaterBoy extends ApplicationAdapter {
 		gameOver = new Texture("gameover.png");
 		restartGame = new Texture("restartgame.png");
 		bottomOfSeaMessage = new Texture("bottomofsea.png");
+		newHighScore = new Texture("newhighscore.png");
 
 		actualWidth = Gdx.graphics.getWidth();
 		actualHeight  = Gdx.graphics.getHeight();
@@ -179,13 +181,11 @@ public class WaterBoy extends ApplicationAdapter {
 				if(mineHorizontalPosition < -mine.getWidth()) {
 					mineHorizontalPosition = actualWidth;
 					mineVerticalPosition = rand.nextInt(800);
-					scored = false;
 				}
 
 				if(mine2HorizontalPosition < -mine2.getWidth()) {
 					mine2HorizontalPosition = actualWidth;
 					mine2VerticalPosition = rand.nextInt(800);
-					scored = false;
 				}
 
 				if(barrelHorizontalPosition < -barrel.getWidth()) {
@@ -201,6 +201,7 @@ public class WaterBoy extends ApplicationAdapter {
 			else {
 				T.cancel();
 				if(score > highestScore) {
+					newHighScoreFlag = true;
 					highestScore = score;
 					prefs.putInteger("score", highestScore);
 				}
@@ -234,7 +235,7 @@ public class WaterBoy extends ApplicationAdapter {
 		batch.draw(barrel2, barrel2HorizontalPosition, barrel2VerticalPosition);
 		batch.draw(boy[(int)variation], 150, verticalInitialPosition);
         font.draw(batch, scoreText + String.valueOf(score), actualWidth - 1750, actualHeight - 25);
-        font.draw(batch, highestScoreText + String.valueOf(highestScore),actualWidth - 1300, actualHeight - 25);
+        font.draw(batch, highestScoreText + String.valueOf(highestScore),actualWidth - 1250, actualHeight - 25);
 
         if(gameState == 0) {
 			batch.draw(startGame, actualWidth / 2 - gameOver.getHeight() - 180, actualHeight / 2);
@@ -244,6 +245,10 @@ public class WaterBoy extends ApplicationAdapter {
         if(gameState == 2) {
 			batch.draw(gameOver, actualWidth / 2 - gameOver.getHeight(), actualHeight / 2);
 			batch.draw(restartGame, actualWidth / 2 - gameOver.getHeight() - 140, actualHeight / 4);
+
+			if(newHighScoreFlag) {
+				batch.draw(newHighScore, actualWidth / 2 - gameOver.getHeight() - 200, actualHeight / 3 + 45);
+			}
 		}
 
 		if(gameState == 3) {
